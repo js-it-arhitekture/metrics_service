@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb_metrics:
+    image: mongo:latest
+    container_name: mongodb_metrics
+    networks:
+      - backend-network
+    environment:
+      MONGO_INITDB_DATABASE: metrics_db
+    ports:
+      - "27026:27018"
+    volumes:
+      - mongodb_data:/data/db
+
+  metrics_service:
+    build: .
+    container_name: metrics_service
+    networks:
+      - backend-network
+    ports:
+      - "8086:8086"  
+
+    depends_on:
+      - mongodb_metrics
+    environment:
+      - MONGODB_URL=mongodb://mongodb_metrics:27017/metrics_db
+
+volumes:
+  mongodb_data:
+
+
+
+networks:
+  backend-network:
+    external: true
